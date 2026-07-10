@@ -6,7 +6,7 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
 	// TODO: เปลี่ยนเป็น URL จริงของคุณ (ชื่อ project บน Cloudflare Pages หรือ custom domain)
 	// ค่านี้ใช้สร้าง sitemap + canonical URL — ตั้งให้ตรงกับที่ deploy จริง
-	site: 'https://devops-zero-to-hero.pages.dev',
+	site: 'https://devops-zero-to-hero.kittinan-ku.workers.dev',
 	integrations: [
 		starlight({
 			title: 'DevOps Zero to Hero',
