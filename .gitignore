@@ -1,0 +1,47 @@
+# build output
+dist/
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.*
+!.env.example
+
+# caches
+.cache/
+.eslintcache
+.npm
+
+# Cloudflare / Wrangler (เผื่อใช้ CLI ในอนาคต)
+.wrangler/
+.dev.vars
+
+# editors & IDE
+.idea/
+*.swp
+*.swo
+*~
+# หมายเหตุ: .vscode/ ไม่ ignore — เก็บ extensions.json / launch.json ที่ scaffold ให้มา
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+Desktop.ini

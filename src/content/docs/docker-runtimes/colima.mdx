@@ -1,0 +1,91 @@
+---
+title: "ติดตั้ง Colima"
+description: วิธีติดตั้งและใช้ Colima รัน Docker บน macOS / Linux
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+**Colima** (Containers on Lima) เป็น open source ที่รัน Docker/containerd บน Linux VM ผ่าน CLI — เบา ฟรีเต็มตัว ไม่มีเงื่อนไข license เหมาะกับคนที่ชอบคุม config เอง
+
+## ติดตั้ง
+
+<Tabs>
+<TabItem label="macOS">
+
+```bash
+# Colima + Docker CLI (Colima ไม่มี docker client ในตัว)
+brew install colima docker
+
+# ถ้าจะใช้ docker compose ด้วย
+brew install docker-compose
+```
+
+</TabItem>
+<TabItem label="Linux">
+
+```bash
+# ต้องมี Lima ก่อน (บาง distro มีใน package manager)
+# หรือติดตั้งผ่าน Homebrew on Linux
+brew install colima docker
+
+# ตรวจว่ามี virtualization ทำงาน (KVM)
+ls -l /dev/kvm
+```
+
+</TabItem>
+</Tabs>
+
+## เริ่มใช้งาน
+
+```bash
+# เริ่ม VM (ครั้งแรกจะโหลด image ของ VM)
+colima start
+
+# ตรวจสอบ
+colima status
+docker run --rm hello-world
+```
+
+Colima จะตั้ง Docker context ให้อัตโนมัติ — พิมพ์ `docker ...` ได้เลยเหมือนปกติ
+
+## ตั้งทรัพยากร
+
+```bash
+# กำหนด CPU / RAM / Disk ตอน start
+colima start --cpu 4 --memory 8 --disk 60
+
+# แก้ทีหลัง (ต้อง stop ก่อน)
+colima stop
+colima start --cpu 2 --memory 4
+```
+
+## เปิด Kubernetes ในตัว
+
+```bash
+colima start --kubernetes
+kubectl get nodes        # จะเห็น node จาก Colima
+```
+
+## หลาย Profile
+
+```bash
+# แยก environment เช่นตัวหนึ่งไว้ทำงาน อีกตัวไว้ลอง k8s
+colima start work --cpu 2 --memory 4
+colima start k8s --kubernetes --cpu 4 --memory 8
+colima list
+```
+
+## คำสั่งที่ใช้บ่อย
+
+| คำสั่ง | ทำอะไร |
+|---|---|
+| `colima start` | เปิด VM |
+| `colima stop` | ปิด VM |
+| `colima status` | ดูสถานะ |
+| `colima list` | list ทุก profile |
+| `colima delete` | ลบ VM (ล้างข้อมูล) |
+| `colima ssh` | เข้า shell ของ VM |
+
+:::tip[อยากได้ GUI?]
+Colima เป็น CLI ล้วน ถ้าอยากได้หน้าจอ ลองดู [Docker Desktop](/docker-runtimes/docker-desktop) หรือ [OrbStack](/docker-runtimes/orbstack)
+:::

@@ -1,0 +1,251 @@
+---
+title: "ใช้ Podman จริงจัง (Compose + Quadlet)"
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+คำสั่ง `podman` เหมือน `docker` เกือบ 100% แต่ Lab นี้จะพาไปในส่วนที่เป็น
+**จุดเด่นจริงๆ ของ Podman** ที่ Docker ทำไม่ได้ —
+รัน container แบบ rootless ให้เป็น **systemd service** ที่ boot ขึ้นเองและ restart อัตโนมัติ
+
+## เป้าหมาย
+
+- รัน multi-container ด้วย `podman-compose`
+- แปลง Docker Compose ไปเป็น Pod ด้วย `podman kube play`
+- รัน container เป็น **systemd service** ด้วย **Quadlet** (วิธีที่แนะนำในปัจจุบัน)
+- ทำให้ service รันต่อแม้ logout ออกจากระบบ (rootless + linger)
+
+## สิ่งที่ต้องมี
+
+<Tabs>
+<TabItem label="Linux">
+
+```bash
+sudo dnf install podman podman-compose   # Fedora/RHEL
+sudo apt install podman podman-compose    # Ubuntu/Debian
+
+podman --version
+podman-compose --version
+```
+
+</TabItem>
+<TabItem label="macOS">
+
+```bash
+brew install podman podman-compose
+podman machine init
+podman machine start
+```
+
+</TabItem>
+</Tabs>
+
+:::note[Quadlet ต้องใช้ Podman 4.4+]
+เช็คด้วย `podman --version` ถ้าต่ำกว่า 4.4 ให้อัปเดตก่อน
+(Fedora/RHEL รุ่นใหม่มีให้อยู่แล้ว)
+:::
+
+---
+
+## Exercise 1 — podman-compose (ใช้ docker-compose.yml เดิมได้เลย)
+
+`podman-compose` อ่านไฟล์ `docker-compose.yml` แบบเดียวกับ Docker Compose:
+
+```bash
+mkdir -p ~/podman-lab && cd ~/podman-lab
+
+cat > docker-compose.yml << 'EOF'
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./html:/usr/share/nginx/html:Z
+  cache:
+    image: redis:7-alpine
+EOF
+
+mkdir -p html
+echo "<h1>Hello from Podman Compose!</h1>" > html/index.html
+
+# start (คำสั่งเลียนแบบ docker compose)
+podman-compose up -d
+
+podman-compose ps
+curl http://localhost:8080
+
+# cleanup
+podman-compose down
+```
+
+:::caution[สังเกต `:Z` ท้าย volume]
+บนระบบที่เปิด SELinux (Fedora/RHEL) ต้องเติม `:Z` (relabel ให้ container เข้าถึงได้)
+ถ้าไม่เติมจะเจอ **Permission denied** ตอน container อ่านไฟล์ — นี่คือความต่างจาก Docker
+ที่มักปิด SELinux enforcement ให้อยู่แล้ว
+:::
+
+---
+
+## Exercise 2 — จาก Compose สู่ Kubernetes ด้วย `podman kube play`
+
+Podman รัน **Kubernetes YAML** ได้ตรงๆ โดยไม่ต้องมี cluster:
+
+```bash
+cd ~/podman-lab
+
+# สร้าง pod จากคำสั่งปกติก่อน
+podman pod create --name demo -p 8080:80
+podman run -d --pod demo --name web nginx:latest
+podman run -d --pod demo --name cache redis:7-alpine
+
+# export ออกมาเป็น Kubernetes YAML
+podman kube generate demo > demo-pod.yaml
+cat demo-pod.yaml
+
+# ลบ pod เดิมแล้ว "เล่น" YAML กลับเข้าไปใหม่
+podman pod stop demo && podman pod rm demo
+podman kube play demo-pod.yaml
+
+podman pod ps
+curl http://localhost:8080
+
+# ลบทั้งหมดตาม YAML
+podman kube play --down demo-pod.yaml
+```
+
+:::tip[ทำไมถึงมีค่า]
+`demo-pod.yaml` นี้ apply บน Minikube/Kubernetes จริงได้ (`kubectl apply -f`)
+→ พัฒนา local ด้วย Podman แล้วเอา YAML เดิมไป deploy บน cluster ได้เลย
+:::
+
+---
+
+## Exercise 3 — รัน Container เป็น systemd Service ด้วย Quadlet
+
+นี่คือ **จุดเด่นสูงสุด** ของ Podman: ให้ systemd จัดการ container โดยไม่ต้องมี daemon กลาง
+วิธีปัจจุบันคือเขียนไฟล์ `.container` (Quadlet) — systemd จะ generate unit ให้อัตโนมัติ
+
+```bash
+# ไฟล์ Quadlet ของ user อยู่ที่นี่
+mkdir -p ~/.config/containers/systemd
+
+cat > ~/.config/containers/systemd/webapp.container << 'EOF'
+[Unit]
+Description=Nginx web app (Podman Quadlet)
+After=network-online.target
+
+[Container]
+Image=docker.io/library/nginx:latest
+PublishPort=8080:80
+# restart ให้เองถ้า crash
+AutoUpdate=registry
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
+EOF
+
+# บอก systemd ให้อ่าน Quadlet ใหม่
+systemctl --user daemon-reload
+
+# start service (ชื่อ unit = ชื่อไฟล์ .container)
+systemctl --user start webapp.service
+
+# เช็คสถานะ
+systemctl --user status webapp.service
+curl http://localhost:8080
+
+# ดู log ผ่าน journald เหมือน service ปกติ
+journalctl --user -u webapp.service --no-pager | tail
+```
+
+:::note[ทำไมไม่ใช้ `podman generate systemd`]
+คำสั่ง `podman generate systemd` แบบเก่า **ถูก deprecated** แล้ว
+Quadlet (`.container` files) คือวิธีที่ Red Hat แนะนำในปัจจุบัน — สั้นกว่าและ declarative
+:::
+
+---
+
+## Exercise 4 — ให้ Service รันต่อแม้ Logout (Rootless Linger)
+
+ปกติ service ของ user (`systemctl --user`) จะหยุดเมื่อ logout
+เปิด **linger** เพื่อให้รันต่อ และให้ boot ขึ้นเองหลัง reboot:
+
+```bash
+# เปิด linger ให้ user ปัจจุบัน (ต้องใช้ sudo ครั้งเดียว)
+sudo loginctl enable-linger $USER
+
+# เปิด service ให้ start เองตอน boot
+systemctl --user enable webapp.service
+
+# ตรวจสอบ
+loginctl show-user $USER --property=Linger
+# ควรได้: Linger=yes
+```
+
+:::tip[ผลลัพธ์]
+ตอนนี้ container `webapp` เป็น service ที่:
+
+- รันแบบ **rootless** (ไม่ใช้ root เลย)
+- **restart อัตโนมัติ** ถ้า crash
+- **boot ขึ้นเอง** หลัง reboot — โดยไม่ต้องมี dockerd หรือ background daemon ใดๆ
+:::
+
+---
+
+## Exercise 5 — Auto-update Image
+
+Quadlet ที่ตั้ง `AutoUpdate=registry` ไว้ จะอัปเดต image ได้ด้วยคำสั่งเดียว:
+
+```bash
+# ตรวจว่ามี image ใหม่ใน registry ไหม แล้ว pull + restart ให้
+podman auto-update --dry-run   # ดูก่อนว่าจะอัปตัวไหน
+podman auto-update             # อัปจริง
+
+# Podman มี timer ให้เปิดใช้ auto-update ทุกวันได้
+systemctl --user enable --now podman-auto-update.timer
+systemctl --user list-timers | grep podman
+```
+
+---
+
+## Cleanup
+
+```bash
+systemctl --user stop webapp.service
+systemctl --user disable webapp.service
+rm ~/.config/containers/systemd/webapp.container
+systemctl --user daemon-reload
+
+podman-compose down 2>/dev/null
+podman pod rm -f demo 2>/dev/null
+podman system prune -f
+```
+
+---
+
+## สรุปสิ่งที่ได้ใน Lab นี้
+
+| ความสามารถ | คำสั่ง | Docker ทำได้ไหม |
+|---|---|---|
+| รัน compose file | `podman-compose up` | ✓ (docker compose) |
+| รัน K8s YAML ตรงๆ | `podman kube play` | ✗ |
+| container เป็น systemd service | Quadlet `.container` | ต้องพึ่ง dockerd |
+| rootless service boot เอง | `loginctl enable-linger` | ยาก (daemon เป็น root) |
+| auto-update image | `podman auto-update` | ✗ (built-in) |
+
+---
+
+:::note[Challenge]
+แปลง `docker-compose.yml` จาก [Docker Lab 02](/docker/lab-02) (app + postgres)
+ให้รันเป็น **Quadlet** ทั้งชุด:
+
+1. สร้างไฟล์ `.container` แยกสำหรับ `app` และ `db` (ใช้ `Network=` ให้คุยกันได้)
+2. ทำให้ทั้งคู่ boot ขึ้นเองด้วย linger
+3. ลองใช้ `.pod` Quadlet จัดกลุ่มทั้งสองไว้ใน pod เดียว
+
+เทียบดูว่าเทียบกับ `docker compose up -d` แล้ว วิธีไหนเหมาะกับ production มากกว่า เพราะอะไร
+:::

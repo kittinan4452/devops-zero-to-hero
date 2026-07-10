@@ -1,0 +1,48 @@
+---
+title: DevOps Zero to Hero
+description: เรียน DevOps และ DevSecOps ตั้งแต่เริ่มต้นจนถึงระดับมืออาชีพ
+template: splash
+hero:
+  tagline: learning path สำหรับ DevOps และ DevSecOps ตั้งแต่เริ่มต้นจนถึงระดับมืออาชีพ — ทฤษฎี + labs ลงมือทำจริง
+  actions:
+    - text: เริ่มที่ Linux
+      link: /linux/basics
+      icon: right-arrow
+      variant: primary
+    - text: ดู Roadmap
+      link: '#roadmap'
+      icon: down-caret
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## Topics ทั้งหมด
+
+<CardGrid>
+	<LinkCard title="🐧 Linux" href="/linux/basics" description="Command line, shell scripting, process management — Beginner" />
+	<LinkCard title="🐳 Docker" href="/docker/concepts" description="Container, image, Dockerfile, Docker Compose — Beginner" />
+	<LinkCard title="☸️ Kubernetes" href="/kubernetes/concepts" description="Pod, Deployment, Service, Ingress — Intermediate" />
+	<LinkCard title="🔄 CI/CD" href="/cicd/concepts" description="GitHub Actions, pipeline automation — Intermediate" />
+	<LinkCard title="🏗️ Terraform" href="/terraform/concepts" description="IaC, provider, state management — Intermediate" />
+	<LinkCard title="⚙️ Ansible" href="/ansible/concepts" description="Automate server setup, playbooks — Intermediate" />
+	<LinkCard title="🦦 Podman" href="/container-tools/lab-02" description="Rootless containers, Compose, Quadlet (systemd) — Intermediate" />
+	<LinkCard title="🖥️ Docker บน Mac/Win" href="/docker-runtimes/comparison" description="Docker Desktop, Colima, OrbStack — วิธีติดตั้ง + เลือกใช้ — Beginner" />
+	<LinkCard title="📊 Monitoring" href="/monitoring/concepts" description="Prometheus + Grafana stack — Intermediate" />
+	<LinkCard title="🔒 DevSecOps" href="/devsecops/concepts" description="SAST, DAST, container scanning — Advanced" />
+</CardGrid>
+
+## Roadmap
+
+<CardGrid>
+	<Card title="ลำดับการเรียนที่แนะนำ" icon="rocket">
+		Linux → Docker → Kubernetes → CI/CD → Terraform → DevSecOps
+
+		เรียนตามลำดับจะต่อยอดกันได้ดีที่สุด แต่ละ topic มีทั้ง **concepts** อธิบายทฤษฎี และ **labs** ให้ลองทำด้วยตัวเอง
+	</Card>
+	<Card title="Lab Environment" icon="setting">
+		Labs ส่วนใหญ่ใช้ **Docker** หรือ **Minikube** บนเครื่อง local
+
+		ติดตั้งเครื่องมือที่จำเป็นก่อนเริ่ม lab ของแต่ละ topic (มีบอกในแต่ละหน้า)
+	</Card>
+</CardGrid>

@@ -1,0 +1,39 @@
+/* ---------------------------------------------------------------
+   DevOps Zero to Hero — ธีมสี + ฟอนต์ไทย (Starlight CSS variables)
+   --------------------------------------------------------------- */
+
+/* ฟอนต์ไทย: IBM Plex Sans Thai + IBM Plex Mono สำหรับ code */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap');
+
+:root {
+	--sl-font: 'IBM Plex Sans Thai', system-ui, sans-serif;
+	--sl-font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+	/* Accent = indigo (ธีมเดิมจาก mkdocs) — dark mode */
+	--sl-color-accent-low: #211d4e;
+	--sl-color-accent: #5b4bde;
+	--sl-color-accent-high: #c7c1f4;
+}
+
+/* Light mode */
+:root[data-theme='light'] {
+	--sl-color-accent-low: #e3e0fb;
+	--sl-color-accent: #5546d6;
+	--sl-color-accent-high: #221d54;
+}
+
+/* จูนความอ่านง่ายของภาษาไทย: line-height + น้ำหนักหัวข้อ */
+.sl-markdown-content {
+	line-height: 1.85;
+}
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3 {
+	font-weight: 600;
+	letter-spacing: 0.01em;
+}
+
+/* การ์ดหัวข้อบนหน้าแรกให้ดูทันสมัยขึ้นเล็กน้อย */
+.card {
+	border-radius: 0.75rem;
+}

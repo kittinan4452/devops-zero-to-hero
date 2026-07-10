@@ -1,0 +1,69 @@
+---
+title: "ติดตั้ง Docker Desktop"
+description: วิธีติดตั้ง Docker Desktop บน macOS และ Windows
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+**Docker Desktop** เป็นตัวทางการจาก Docker มาพร้อม GUI, Docker Engine, Compose, และ Kubernetes ในตัว เหมาะกับมือใหม่ที่อยากเริ่มเร็ว
+
+:::note[เรื่อง License]
+ฟรีสำหรับใช้ส่วนตัว / การศึกษา / บริษัทเล็ก — บริษัทใหญ่ (> 250 คน หรือรายได้ > $10M/ปี) ต้องซื้อ subscription
+:::
+
+## ติดตั้ง
+
+<Tabs>
+<TabItem label="macOS">
+
+**วิธีที่ 1 — Homebrew (แนะนำ)**
+```bash
+brew install --cask docker
+```
+เปิดแอป Docker จาก Applications ครั้งแรกเพื่อให้มัน setup
+
+**วิธีที่ 2 — โหลดไฟล์เอง**
+1. โหลด `.dmg` จาก https://www.docker.com/products/docker-desktop/
+2. เลือกให้ถูกชิป: **Apple Silicon** (M1/M2/M3) หรือ **Intel**
+3. ลากเข้า Applications แล้วเปิด
+
+</TabItem>
+<TabItem label="Windows">
+
+**เตรียม WSL2 ก่อน** (backend ที่แนะนำ)
+```powershell
+wsl --install
+# restart เครื่องหลังติดตั้งเสร็จ
+```
+
+**ติดตั้ง Docker Desktop**
+```powershell
+winget install Docker.DockerDesktop
+```
+หรือโหลด installer จาก https://www.docker.com/products/docker-desktop/ แล้วติดตั้ง (เลือก **Use WSL 2 instead of Hyper-V**)
+
+</TabItem>
+</Tabs>
+
+## ตรวจสอบว่าใช้งานได้
+
+```bash
+docker --version
+docker run --rm hello-world
+docker compose version
+```
+
+ถ้าเห็นข้อความ "Hello from Docker!" = พร้อมใช้งาน
+
+## ตั้งค่าทรัพยากร (ถ้าเครื่องช้า/หน่วง)
+
+เปิดแอป → **Settings → Resources** ปรับ CPU / Memory / Disk ตามเครื่อง
+(แนะนำอย่างน้อย CPU 2, RAM 4GB สำหรับงานทั่วไป)
+
+## เปิด Kubernetes (ถ้าต้องใช้)
+
+**Settings → Kubernetes → Enable Kubernetes** → Apply — จะได้ single-node cluster ใช้กับ `kubectl` ได้เลย
+
+:::tip[อยากได้เบา/เร็วกว่านี้ หรือไม่อยากติดเงื่อนไข license?]
+ลองดู [Colima](/docker-runtimes/colima) หรือ [OrbStack](/docker-runtimes/orbstack)
+:::
