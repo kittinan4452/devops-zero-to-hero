@@ -45,3 +45,6 @@ pnpm-debug.log*
 .Trashes
 Thumbs.db
 Desktop.ini
+
+.dev.vars*
+!.dev.vars.example
