@@ -2,6 +2,8 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
+import cloudflare from '@astrojs/cloudflare';
+
 // https://astro.build/config
 export default defineConfig({
 	// TODO: เปลี่ยนเป็น URL จริงของคุณ (ชื่อ project บน Cloudflare Pages หรือ custom domain)
@@ -130,4 +132,6 @@ export default defineConfig({
 			],
 		}),
 	],
+
+  adapter: cloudflare(),
 });
