@@ -85,6 +85,15 @@ export default defineConfig({
 						{ label: '📋 Cheatsheet - คำสั่งที่ใช้บ่อย', slug: 'linux/cheatsheet' },
 						{ label: 'Lab 01 - คำสั่งพื้นฐาน', slug: 'linux/lab-01' },
 					]},
+					{ label: '📜 Logs', collapsed: true, items: [
+						{ label: 'Concepts - การอ่าน Log', slug: 'logs/concepts' },
+						{ label: '📋 Cheatsheet - คำสั่งอ่าน Log', slug: 'logs/cheatsheet' },
+						{ label: 'Lab 01 - สืบสวนเหตุการณ์จาก Log', slug: 'logs/lab-01' },
+						{ label: '💻 Log ฝั่ง Dev (Stack Trace)', slug: 'logs/dev' },
+						{ label: '🚀 Log ฝั่ง Deploy (CI/CD, K8s)', slug: 'logs/deploy' },
+						{ label: '🌐 Log ฝั่ง Network', slug: 'logs/network' },
+						{ label: '🛡️ Log ฝั่ง Security', slug: 'logs/security' },
+					]},
 					{ label: '🐳 Docker', collapsed: true, items: [
 						{ label: 'Concepts', slug: 'docker/concepts' },
 						{ label: '📋 Cheatsheet - คำสั่งที่ใช้บ่อย', slug: 'docker/cheatsheet' },
