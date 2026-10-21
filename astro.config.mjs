@@ -85,6 +85,11 @@ export default defineConfig({
 						{ label: '📋 Cheatsheet - คำสั่งที่ใช้บ่อย', slug: 'linux/cheatsheet' },
 						{ label: 'Lab 01 - คำสั่งพื้นฐาน', slug: 'linux/lab-01' },
 					]},
+					{ label: '📝 LazyVim (Editor)', collapsed: true, items: [
+						{ label: 'Concepts - Vim/Neovim/LazyVim', slug: 'lazyvim/concepts' },
+						{ label: '📋 Cheatsheet - ปุ่มลัด', slug: 'lazyvim/cheatsheet' },
+						{ label: 'Lab 01 - แก้โปรเจกต์ DevOps', slug: 'lazyvim/lab-01' },
+					]},
 					{ label: '📜 Logs', collapsed: true, items: [
 						{ label: 'Concepts - การอ่าน Log', slug: 'logs/concepts' },
 						{ label: '📋 Cheatsheet - คำสั่งอ่าน Log', slug: 'logs/cheatsheet' },
